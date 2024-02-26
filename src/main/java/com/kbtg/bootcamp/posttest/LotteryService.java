@@ -1,20 +1,32 @@
 package com.kbtg.bootcamp.posttest;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class LotteryService {
 
-    private final List<String> lotteryTickets = new ArrayList<>();
+    private final JdbcTemplate jdbcTemplate;
 
-    public String addLotteryTicket(String ticket) {
-        lotteryTickets.add(ticket);
+    @Autowired
+    public LotteryService(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
+    public String addLotteryTicket(String ticket, int price, int amount) {
+        // ทำการแทรกข้อมูลลอตเตอรี่ลงในตาราง lottery
+        jdbcTemplate.update("INSERT INTO lottery (lottery_number, price, amount) VALUES (?, ?, ?)", ticket, price, amount);
+
         return ticket;
     }
 
     public List<String> getAllLotteryTickets() {
-        return lotteryTickets;
+        // ดึงข้อมูลทั้งหมดจากตาราง lottery
+        return jdbcTemplate.queryForList("SELECT lottery_number FROM lottery", String.class);
     }
+
+    // Add more methods as needed
 }

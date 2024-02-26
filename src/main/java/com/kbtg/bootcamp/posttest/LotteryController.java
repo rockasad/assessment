@@ -9,6 +9,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @author osas
+ */
 @RestController
 @RequestMapping("/admin/lotteries")
 public class LotteryController {
@@ -19,19 +22,21 @@ public class LotteryController {
     public LotteryController(LotteryService lotteryService) {
         this.lotteryService = lotteryService;
     }
+
     @PostMapping
-    public ResponseEntity<Map<String, String>> addLotteryTicket(@RequestBody Map<String, String> request) {
-        // Your basic authentication logic should be added here
-        // For simplicity, let's assume username=admin and password=password
-        String username = request.get("username");
-        String password = request.get("password");
+    public ResponseEntity<Map<String, String>> addLotteryTicket(@RequestBody Map<String, Object> request) {
+        String username = request.get("username").toString();
+        String password = request.get("password").toString();
 
         if (!"admin".equals(username) || !"password".equals(password)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        String ticket = request.get("ticket");
-        String addedTicket = lotteryService.addLotteryTicket(ticket);
+        String ticket = request.get("ticket").toString();
+        int price = (int) request.get("price");
+        int amount = (int) request.get("amount");
+
+        String addedTicket = lotteryService.addLotteryTicket(ticket, price, amount);
 
         Map<String, String> responseBody = new HashMap<>();
         responseBody.put("ticket", addedTicket);
@@ -42,7 +47,8 @@ public class LotteryController {
 
     // Add more methods as needed
     @GetMapping
-    public List<String> getAllLotteryTickets() {
-        return lotteryService.getAllLotteryTickets();
+    public ResponseEntity<Map<String, String>> getAllLotteryTickets() {
+        // Implement this method if needed
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

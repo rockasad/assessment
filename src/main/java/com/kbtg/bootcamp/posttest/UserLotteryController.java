@@ -2,11 +2,9 @@ package com.kbtg.bootcamp.posttest;
 
 import com.kbtg.bootcamp.posttest.UserLotteryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,12 +34,32 @@ public class UserLotteryController {
         }
 
         // Call the service to process the purchase
-        Long userTicketId = userLotteryService.buyLotteryTicket(userId, ticketId);
+        Long purchasedTicketId = userLotteryService.buyLotteryTicket(userId, ticketId);
 
         // Build the response
         Map<String, String> responseBody = new HashMap<>();
-        responseBody.put("id", String.valueOf(userTicketId));
+        responseBody.put("id", String.valueOf(purchasedTicketId));
 
         return ResponseEntity.ok(responseBody);
+    }
+    @DeleteMapping("/{ticketId}")
+    public ResponseEntity<String> deleteLotteryTicket(
+            @PathVariable Long userId,
+            @PathVariable String ticketId
+    ) {
+        // ตรวจสอบความถูกต้องของ userId และ ticketId
+        if (userId <= 0 || ticketId == null || ticketId.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        // เรียกใช้งาน service สำหรับการลบ lottery ticket
+        boolean deleted = userLotteryService.deleteLotteryTicket(userId, ticketId);
+
+        // ตรวจสอบว่า lottery ticket ถูกลบหรือไม่
+        if (deleted) {
+            return ResponseEntity.ok("Ticket deleted: " + ticketId);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ticket not found: " + ticketId);
+        }
     }
 }
